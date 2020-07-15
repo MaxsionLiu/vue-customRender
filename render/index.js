@@ -12,5 +12,4 @@ export const initRuntimeCanvas  = () => {
     }
 }
 
-
-
+export * from '@vue/runtime-core'

@@ -1,3 +1,12 @@
+import { h, reactive, ref, computed } from '../../render/index'
 
-import { initRuntimeCanvas } from '../../render/index'
-import moduleName from ''
+export default {
+    setup() {
+
+    },
+
+    render(ctx) {
+        return h("Container")
+    }
+};
+

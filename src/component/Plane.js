@@ -13,13 +13,12 @@ export default defineComponent({
     setup(props, ctx) {
         const x = ref(props.x)
         const y = ref(props.y)
-        // watch(props, (newProps) => {
-        //     x.value = newProps.x
-        //     y.value = newProps.y
-        // })
+        watch(props, (newProps) => {
+            x.value = newProps.x
+            y.value = newProps.y
+        })
 
-        // useAttackHandler(ctx, x,y)
-
+        useAttackHandler(ctx, x,y)
         return {
             x,
             y
@@ -62,7 +61,7 @@ function useAttackHandler(ctx, x, y){
     });
 
     const emitAttack = () => {
-        ctx.emit("attck", {
+        ctx.emit("attack", {
             x: x.value + 110,
             y: y.value + 0
         })

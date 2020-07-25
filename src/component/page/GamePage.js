@@ -1,5 +1,6 @@
 import { h, reactive, defineComponent, onMounted, onUnmounted } from '../../../render/index';
 import Map from '../Map'
+import { useKeyboardMove } from '../../use/index'
 import Plane, { PlaneInfo } from "../Plane.js";
 import { stage } from '../../config/index'
 
@@ -26,8 +27,17 @@ export default defineComponent ({
        })
 
        const handlePlaneAttack = ({x, y}) => {
-
+           debugger
+console.log('-----x---y------',x,y)
        }
+    
+       const { x: selfPlaneX, y: selfPlaneY } = useKeyboardMove({
+           x: selfPlane.x,
+           y: selfPlane.y,
+           speed: selfPlane.speed
+       }) 
+       selfPlane.x = selfPlaneX
+       selfPlane.y = selfPlaneY
 
        return {
            selfPlane,

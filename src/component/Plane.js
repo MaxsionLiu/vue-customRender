@@ -28,7 +28,7 @@ export default defineComponent({
         console.log('ctx', ctx.x, ctx.y)
         return h("Sprite", {
             x: ctx.x,
-            y: ctx.y - 600,
+            y: ctx.y,
             texture: planeImagePath,
             key: "1",
         })

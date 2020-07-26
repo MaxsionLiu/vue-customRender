@@ -3,7 +3,14 @@ import Map from '../Map'
 import { useKeyboardMove } from '../../use/index'
 import Plane, { PlaneInfo } from "../Plane.js";
 import { stage } from '../../config/index'
+import Bullet, { SelfBulletInfo, EnemyBulletInfo } from '../Bullet'
 
+let hashCode = 0
+const createHashCode = () => {
+   return hashCode++
+}
+
+// 我方战机
 const useSelfPlane = ({x, y, speed}) => {
    const selfPlane = reactive({
        x,
@@ -22,15 +29,27 @@ export default defineComponent ({
     setup(props) {
        const selfPlane = useSelfPlane({
           x: stage.width / 2 - 60,
-          y: stage.height,
+          y: stage.height / 2,
           speed: 7
        })
+       const selfBulltes = reactive([])
 
        const handlePlaneAttack = ({x, y}) => {
-           debugger
-console.log('-----x---y------',x,y)
+           const id = createHashCode()
+           const width = SelfBulletInfo.width
+           const height = SelfBulletInfo.height
+           const rotation = SelfBulletInfo.rotation
+           const dir = SelfBulletInfo.dir
+           selfBulltes.push({ x, y, id, width, height, rotation, dir})
        }
     
+       const handleBulletDestroy = ({ id }) => {
+          const index = selfBulltes.findIndex((info) => info.id === id)
+          if (index !== -1) {
+              selfBulltes.splice(index, 1)
+          }
+       }
+
        const { x: selfPlaneX, y: selfPlaneY } = useKeyboardMove({
            x: selfPlane.x,
            y: selfPlane.y,
@@ -40,11 +59,27 @@ console.log('-----x---y------',x,y)
        selfPlane.y = selfPlaneY
 
        return {
+           selfBulltes,
            selfPlane,
-           handlePlaneAttack
+           handlePlaneAttack,
+           handleBulletDestroy
        }
     },
     render(ctx) {
+        const createBullet = (info, index) => {
+           return h(Bullet, {
+              key: "Bullet" + info.id,
+              x: info.x,
+              y: info.y,
+              id: info.id,
+              width: info.width,
+              height: info.height,
+              rotation: info.rotation,
+              dir: info.dir,
+              onDestroy: ctx.handleBulletDestroy
+           })
+        }
+
         const createSelfPlane = () => {
             return h(Plane, {
                 x: ctx.selfPlane.x,
@@ -55,7 +90,8 @@ console.log('-----x---y------',x,y)
         };
         return h("Container", [
             h(Map),
-            createSelfPlane()
+            createSelfPlane(),
+            ...ctx.selfBulltes.map(createBullet)
         ])
     }
 });

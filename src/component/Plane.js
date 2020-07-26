@@ -25,7 +25,6 @@ export default defineComponent({
         }
     },
     render(ctx) {
-        console.log('ctx', ctx.x, ctx.y)
         return h("Sprite", {
             x: ctx.x,
             y: ctx.y,

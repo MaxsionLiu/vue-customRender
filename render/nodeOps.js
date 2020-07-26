@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js'
 export const nodeOps = {
     insert: (child, parent, anchor) => {
-        console.log('insert')
         parent.addChild(child);
     },
 
@@ -28,7 +27,6 @@ export const nodeOps = {
            // show hand  cursor
            element.buttonMode = true
        }else if (tag === "Sprite") {
-           console.log('Sprite')
            element = new PIXI.Sprite()
            element.x = 0
            element.y = 0

@@ -27,7 +27,6 @@ export const patchProp = (
             el.style = style
             break
           case "anchor":
-            console.log('nextValue :>> ', nextValue)
             el.anchor.set(...nextValue)
             break         
        }

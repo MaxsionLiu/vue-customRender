@@ -2,8 +2,12 @@ import { h, reactive, defineComponent, onMounted, onUnmounted } from '../../../r
 import Map from '../Map'
 import { useKeyboardMove } from '../../use/index'
 import Plane, { PlaneInfo } from "../Plane.js";
+import EnemyPlane, { EnemyPlaneInfo } from '../EnemyPlane'
 import { stage } from '../../config/index'
+import { game } from '../../../game.js'
 import Bullet, { SelfBulletInfo, EnemyBulletInfo } from '../Bullet'
+import { moveBullets } from '../../moveBullets'
+import { moveEnemyPlane } from '../../moveEnemyPlane'
 
 let hashCode = 0
 const createHashCode = () => {
@@ -24,6 +28,52 @@ const useSelfPlane = ({x, y, speed}) => {
    return selfPlane
 }
 
+// 敌机
+const useEnemyPlanes = () => {
+   //生产敌机
+   const createEnemyPlaneData = (x) => {
+       return {
+           x,
+           y: -200,
+           width: EnemyPlaneInfo.width,
+           height: EnemyPlaneInfo.height,
+           life: EnemyPlaneInfo.life
+       }
+   };
+
+   const enemyPlanes = reactive([])
+
+   setInterval(() => {
+       const x = Math.floor((1 + stage.width) * Math.random())
+       enemyPlanes.push(createEnemyPlaneData(x))
+   }, 600)
+
+   return enemyPlanes
+}
+
+// 战斗逻辑
+const useFighting = ({
+    selfPlane,
+    selfBulltes,
+    enemyPlanes,
+    enemyPlaneBullets
+   }) => {
+
+    const handleTicker = () => {
+        moveBullets(selfBulltes)
+        moveBullets(enemyPlaneBullets)
+        moveEnemyPlane(enemyPlanes)
+    }
+
+    onMounted(() => {
+        game.ticker.add(handleTicker)
+    })
+
+    onUnmounted(() => {
+        game.ticker.remove(handleTicker)
+    })
+}
+
 export default defineComponent ({
     props: ["onNextPage"],
     setup(props) {
@@ -33,6 +83,8 @@ export default defineComponent ({
           speed: 7
        })
        const selfBulltes = reactive([])
+       const enemyPlanes = useEnemyPlanes()
+       const enemyPlaneBullets = reactive([])
 
        const handlePlaneAttack = ({x, y}) => {
            const id = createHashCode()
@@ -41,6 +93,15 @@ export default defineComponent ({
            const rotation = SelfBulletInfo.rotation
            const dir = SelfBulletInfo.dir
            selfBulltes.push({ x, y, id, width, height, rotation, dir})
+       }
+
+       const handleEnemyPlaneAttack = ({x, y}) => {
+           const id = createHashCode()
+           const width = EnemyBulletInfo.width
+           const height = EnemyBulletInfo.height
+           const rotation = EnemyBulletInfo.rotation
+           const dir = EnemyBulletInfo.dir
+           enemyPlaneBullets.push({x, y, id, width, height, rotation, dir})
        }
     
        const handleBulletDestroy = ({ id }) => {
@@ -58,11 +119,20 @@ export default defineComponent ({
        selfPlane.x = selfPlaneX
        selfPlane.y = selfPlaneY
 
+       useFighting({
+           selfPlane,
+           selfBulltes,
+           enemyPlanes,
+           enemyPlaneBullets
+       })
        return {
            selfBulltes,
            selfPlane,
+           enemyPlanes,
+           enemyPlaneBullets,
            handlePlaneAttack,
-           handleBulletDestroy
+           handleBulletDestroy,
+           handleEnemyPlaneAttack
        }
     },
     render(ctx) {
@@ -88,10 +158,24 @@ export default defineComponent ({
                 onAttack: ctx.handlePlaneAttack
             })
         };
+
+        const createEnemyPlane = (info, index) => {
+           return h(EnemyPlane, {
+               key: "EnemyPlane" + index,
+               x: info.x,
+               y: info.y,
+               height: info.height,
+               width: info.width,
+               onAttack: ctx.handleEnemyPlaneAttack,
+           })
+        }
+
         return h("Container", [
             h(Map),
             createSelfPlane(),
-            ...ctx.selfBulltes.map(createBullet)
+            ...ctx.selfBulltes.map(createBullet),
+            ...ctx.enemyPlaneBullets.map(createBullet),
+            ...ctx.enemyPlanes.map(createEnemyPlane)
         ])
     }
 });

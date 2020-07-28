@@ -8,6 +8,8 @@ import { game } from '../../../game.js'
 import Bullet, { SelfBulletInfo, EnemyBulletInfo } from '../Bullet'
 import { moveBullets } from '../../moveBullets'
 import { moveEnemyPlane } from '../../moveEnemyPlane'
+import { hitTestRectangle } from '../../utils'
+import { PAGE } from './index'
 
 let hashCode = 0
 const createHashCode = () => {
@@ -45,7 +47,9 @@ const useEnemyPlanes = () => {
 
    setInterval(() => {
        const x = Math.floor((1 + stage.width) * Math.random())
-       enemyPlanes.push(createEnemyPlaneData(x))
+       if (enemyPlanes.length <= 20) {
+         enemyPlanes.push(createEnemyPlaneData(x))
+       }
    }, 600)
 
    return enemyPlanes
@@ -56,13 +60,48 @@ const useFighting = ({
     selfPlane,
     selfBulltes,
     enemyPlanes,
-    enemyPlaneBullets
+    enemyPlaneBullets,
+    gameOverCallback
    }) => {
 
     const handleTicker = () => {
         moveBullets(selfBulltes)
         moveBullets(enemyPlaneBullets)
         moveEnemyPlane(enemyPlanes)
+
+        selfBulltes.forEach((bullet, selfIndex) => {
+          enemyPlanes.forEach((enemyPlane, enemyPlaneIndex) => {
+              if(hitTestRectangle(bullet, enemyPlane)){
+                  selfBulltes.splice(selfIndex, 1)
+
+                  enemyPlane.life--
+                  if (enemyPlane.life <= 0) {
+                      enemyPlanes.splice(enemyPlaneIndex, 1)
+                  }
+              }
+          })
+
+          enemyPlaneBullets.forEach((enemyBullet, enemyBulletIdex) => {
+              if(hitTestRectangle(bullet, enemyBullet)){
+                  selfBulltes.splice(selfIndex, 1)
+                  enemyPlaneBullets.splice(enemyBulletIdex, 1)
+              }
+          })
+        })
+
+        const hitSelHandle = (enemyObject) => {
+            if (hitTestRectangle(selfPlane, enemyObject)) {
+                gameOverCallback && gameOverCallback()
+            }
+        }
+
+        enemyPlaneBullets.forEach((enemyBullet) => {
+            hitSelHandle(enemyBullet)
+        })
+
+        enemyPlanes.forEach((enemyPlane) => {
+            hitSelHandle(enemyPlane)
+        })
     }
 
     onMounted(() => {
@@ -119,11 +158,16 @@ export default defineComponent ({
        selfPlane.x = selfPlaneX
        selfPlane.y = selfPlaneY
 
+       const handleGameOver = () => {
+           props.onNextPage(PAGE.end)
+       }
+
        useFighting({
            selfPlane,
            selfBulltes,
            enemyPlanes,
-           enemyPlaneBullets
+           enemyPlaneBullets,
+           gameOverCallback: handleGameOver
        })
        return {
            selfBulltes,

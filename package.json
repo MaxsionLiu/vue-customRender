@@ -1,5 +1,5 @@
 {
-  "name": "vue-customRender",
+  "name": "vue3.0-custom-render",
   "version": "1.0.0",
   "description": "study -> https://github.com/cuixiaorui/vue-pixijs",
   "main": "index.js",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MaxsionLiu/vue-customRender.git"
+    "url": "git+https://github.com/liushuiyuan001/vue-customRender.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["vue3.0","custom","render"],
+  "author": "liushuiyuan001",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MaxsionLiu/vue-customRender/issues"
+    "url": "https://github.com/liushuiyuan001/vue-customRender/issues"
   },
-  "homepage": "https://github.com/MaxsionLiu/vue-customRender#readme",
+  "homepage": "https://github.com/liushuiyuan001/vue-customRender#readme",
   "dependencies": {
     "@vue/runtime-core": "^3.0.0-beta.20",
     "file-loader": "^6.0.0",
